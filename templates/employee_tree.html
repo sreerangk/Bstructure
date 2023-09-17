@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Hierarchy</title>
+    <style>
+        .employee-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .ceo {
+            background-color: #ff5733;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .manager {
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .employee {
+            background-color: #e5e5e5;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+    </style>
+</head>
+<body>
+    <ul>
+        <li class="employee-container">
+            <div class="{{ employee.position_name|lower }}">
+                {{ employee.user.username }} -  {{ employee.position_name }}
+            </div>
+        </li>
+        {% for subordinate in employee.employee_set.all %}
+            <li class="employee-container">
+                <div class="{{ subordinate.position_name|lower }}" onclick="toggleEmployees(this)">
+                    {{ subordinate.user.username }} -  {{ subordinate.position_name }}
+                </div>
+                <ul style="display: none;"> 
+                    {% for sub_subordinate in subordinate.employee_set.all %}
+                        <li class="employee-container">
+                            <div class="{{ sub_subordinate.position_name|lower }}" onclick="toggleEmployees(this)">
+                                {{ sub_subordinate.user.username }} - {{ sub_subordinate.position_name }}
+                            </div>
+                            <ul style="display: none;"> 
+                                {% for sub__subordinate in sub_subordinate.employee_set.all %}
+                                    <li class="employee-container">
+                                        <div class="{{ sub__subordinate.position_name|lower }}">
+                                            {{ sub__subordinate.user.username }} - {{ sub__subordinate.position_name }}
+                                        </div>
+                                    </li>
+                                {% empty %}
+                                    <li>No subordinate</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% empty %}
+                       <li>No subordinate</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% empty %}
+           <li>No subordinate</li>
+        {% endfor %}
+    </ul>
+
+    <script>
+        function toggleEmployees(managerElement) {
+            const employeesList = managerElement.nextElementSibling;
+            if (employeesList.style.display === 'none') {
+                employeesList.style.display = 'block';
+            } else {
+                employeesList.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
