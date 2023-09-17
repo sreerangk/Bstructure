@@ -34,30 +34,70 @@
             padding: 5px;
             border-radius: 5px;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+        }
 
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        /* Style for the close button */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
 </head>
-<body>
+{% block content %}
+
+<body> 
+   
     <ul>
         <li class="employee-container">
+           
             <div class="{{ employee.position_name|lower }}">
                 {{ employee.user.username }} -  {{ employee.position_name }}
             </div>
         </li>
         {% for subordinate in employee.employee_set.all %}
             <li class="employee-container">
+                <button id="addEmployeeButton" onclick="editEmployee({{ subordinate.id }})">+</button>
                 <div class="{{ subordinate.position_name|lower }}" onclick="toggleEmployees(this)">
                     {{ subordinate.user.username }} -  {{ subordinate.position_name }}
                 </div>
                 <ul style="display: none;"> 
                     {% for sub_subordinate in subordinate.employee_set.all %}
                         <li class="employee-container">
+                            <button id="addEmployeeButton" onclick="editEmployee({{ sub_subordinate.id }})">+</button>
                             <div class="{{ sub_subordinate.position_name|lower }}" onclick="toggleEmployees(this)">
                                 {{ sub_subordinate.user.username }} - {{ sub_subordinate.position_name }}
                             </div>
                             <ul style="display: none;"> 
                                 {% for sub__subordinate in sub_subordinate.employee_set.all %}
                                     <li class="employee-container">
+                                        <button id="addEmployeeButton" onclick="editEmployee({{ sub__subordinate.id }})">+</button>
                                         <div class="{{ sub__subordinate.position_name|lower }}">
                                             {{ sub__subordinate.user.username }} - {{ sub__subordinate.position_name }}
                                         </div>
@@ -76,6 +116,7 @@
            <li>No subordinate</li>
         {% endfor %}
     </ul>
+    
 
     <script>
         function toggleEmployees(managerElement) {
@@ -86,6 +127,31 @@
                 employeesList.style.display = 'none';
             }
         }
+
+        function editEmployee(employeeId) {
+            window.location.href = `/edit-employee/${employeeId}/`;
+        }
+    
+ 
+        const addButton = document.getElementById('addEmployeeButton');
+        const modal = document.getElementById('myModal');
+        const closeModal = document.getElementById('closeModal');
+
+        addButton.addEventListener('click', function() {
+            modal.style.display = 'block';
+        });
+
+        closeModal.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        // Close the modal if the user clicks anywhere outside of it
+        window.addEventListener('click', function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>
+{% endblock %}

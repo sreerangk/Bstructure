@@ -1,0 +1,19 @@
+<table class="table table-bordered">
+    <tbody>
+        <tr>
+            <th>User ID</th>
+            <td>{{user.id}}</td>
+        </tr>
+        <tr>
+            <th>Username</th>
+            <td>{{user.username}}</td>
+        </tr>
+        
+        <tr>
+            <th>join Date</th>
+            <td>{{ user.date_joined }}</td>
+        </tr>
+    </tbody>
+</table>
+<a href="{% url 'logout' %}"> <button class="btn btn-primary">LOGOUT</button>
+</div>

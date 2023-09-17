@@ -1,8 +1,12 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import HttpResponse
 from master.fomrs import EmployeeForm
+from django.contrib.auth import authenticate, login
 
 from master.models import Employee
+
+from django.contrib import messages
+from django.contrib.auth.models import User,auth
 
 # Create your views here.
 
@@ -10,6 +14,7 @@ from master.models import Employee
 
 def index(request):
     return HttpResponse("The Server is up!!")
+
 
 
 
@@ -38,3 +43,56 @@ def edit_employee(request, employee_id):
         form = EmployeeForm(instance=employee)
     return render(request, 'edit_employee.html', {'form': form})
 
+
+
+def custom_register(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+
+        if password1 != password2:
+            messages.error(request, 'Passwords do not match.')
+        else:
+            # Check if the username is unique
+            if User.objects.filter(username=username).exists():
+                messages.error(request, 'Username is already taken.')
+            else:
+                # Create the user
+                user = User.objects.create_user(username=username, password=password1)
+             
+                user.save()
+                messages.success(request, 'Registration successful.')
+                return redirect('employee_list') 
+
+    return render(request, 'register.html')
+
+   
+def userpro(request):
+    if request.user.is_authenticated:
+        data=User.objects.all()
+       
+        context={'data':data}
+        return render(request, 'userpro.html',context)
+    auth.logout(request)     
+    return render(request, 'login.html')
+
+def logout(request):
+    if request.user.is_authenticated:
+        auth.logout(request)
+        #request.session.flush()
+        return redirect(login)
+    
+def login(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:           
+            auth.login(request,user)
+            return redirect('userpro')
+        else:
+            messages.error(request, 'Invalid username or password. Please try again.')
+
+    return render(request, 'login.html') 
