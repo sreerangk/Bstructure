@@ -96,3 +96,32 @@ def login(request):
             messages.error(request, 'Invalid username or password. Please try again.')
 
     return render(request, 'login.html') 
+
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.contrib.auth.models import User
+from rest_framework.permissions import IsAuthenticated
+ 
+from .serializers import ChangePasswordSerializer
+
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+
+        if serializer.is_valid():
+            user = request.user
+
+            old_password = serializer.validated_data['old_password']
+            new_password = serializer.validated_data['new_password']
+
+            if user.check_password(old_password):
+                user.set_password(new_password)
+                user.save()
+                return Response({'message': 'Password updated successfully'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'Invalid old password'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

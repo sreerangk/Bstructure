@@ -13,6 +13,7 @@ urlpatterns = [
     path('logout/', views.logout, name='logout'),
     path('register/', views.custom_register, name='register'),
 
+    path('api/change-password/', views.ChangePasswordView.as_view(), name='change-password'),
 
 
 ]
